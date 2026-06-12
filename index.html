@@ -204,16 +204,15 @@
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR', options);
 
-    // Türkiye Haber Kaynakları (Eski listeye talep ettiğiniz yeni gazeteler eklenmiştir)
+    // Türkiye Haber Kaynakları (Sabah çıkarıldı, Adresler güncellendi ve optimize edildi)
     const trSources = [
         { name: "Hürriyet", url: "https://www.hurriyet.com.tr/rss/gundem" },
         { name: "Cumhuriyet", url: "https://www.cumhuriyet.com.tr/rss/son_dakika.xml" },
-        { name: "Sabah", url: "https://itv.sabah.com.tr/rss/gundem.xml" },
         { name: "TRT Haber", url: "https://www.trthaber.com/gundem_articles.rss" },
-        { name: "Yeni Şafak", url: "https://www.yenisafak.com/rss" },
-        { name: "Sözcü", url: "https://www.sozcu.com.tr/rss/gundem.xml" },
-        { name: "Nefes Gazetesi", url: "https://www.nefesgazetesi.com/rss" },
-        { name: "Karar", url: "https://www.karar.com/rss" }
+        { name: "Yeni Şafak", url: "https://www.yenisafak.com/rss?xml=gundem" },
+        { name: "Sözcü", url: "https://www.sozcu.com.tr/feeds-rss-category-gundem" },
+        { name: "Nefes Gazetesi", url: "https://www.nefesgazetesi.com/feed" },
+        { name: "Karar", url: "https://www.karar.com/feeds" }
     ];
 
     // Uluslararası Haber Kaynakları
@@ -224,9 +223,11 @@
         { name: "The Guardian", url: "https://www.theguardian.com/world/rss" }
     ];
 
-    // RSS Feed okumak için CORS korumasını aşan güvenli servis (rss2json)
+    // RSS Feed okumak için CORS korumasını aşan ve anti-cache (eski içerik önleme) barındıran servis
     async function fetchRSS(url) {
-        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+        // url sonuna rastgele parametre ekleyerek rss2json API'sinin eskiyi getirmesini engelliyoruz
+        const cleanUrl = url.includes('?') ? `${url}&_=${Date.now()}` : `${url}?_=${Date.now()}`;
+        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(cleanUrl)}`);
         if (!response.ok) throw new Error('Veri alınamadı');
         return await response.json();
     }
@@ -249,7 +250,7 @@
         const limitItems = items.slice(0, 3);
         
         if(limitItems.length === 0) {
-            list.innerHTML = `<li class="loading">Bugüne ait erişilebilir haber bulunamadı.</li>`;
+            list.innerHTML = `<li class="loading">Şu an için erişilebilir yeni haber bulunamadı.</li>`;
         }
 
         limitItems.forEach(item => {
@@ -264,7 +265,7 @@
 
             li.innerHTML = `
                 <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
-                <div class="news-date">${pubDateStr ? pubDateStr + ' - ' : ''}Günün Haberi</div>
+                <div class="news-date">${pubDateStr ? pubDateStr + ' - ' : ''}Son Dakika</div>
             `;
             list.appendChild(li);
         });
@@ -278,7 +279,7 @@
         const container = document.getElementById(containerId);
         const card = document.createElement('div');
         card.className = 'source-card';
-        card.innerHTML = `<h3>${sourceName}</h3><p class="error">Haberler yüklenirken bir hata oluştu veya kaynak geçici olarak servis dışı.</p>`;
+        card.innerHTML = `<h3>${sourceName}</h3><p class="error">Haber akışı güncellenemedi (Kaynak sunucu veya CORS hatası).</p>`;
         container.appendChild(card);
     }
 
