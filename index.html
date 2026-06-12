@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matbuatı Ahvali Cariye</title>
+    <title>Günlük Haber Takip Merkezi</title>
     <style>
         :root {
             --bg-color: #f4f6f9;
@@ -81,7 +81,6 @@
             display: block;
         }
 
-        /* 2 sütunlu düzen yapısı */
         @media (min-width: 768px) {
             .news-grid {
                 display: grid;
@@ -183,16 +182,20 @@
         <p id="current-date"></p>
     </header>
 
+    <!-- TÜRKİYE BÖLÜMÜ -->
     <section class="grid-section">
         <h2 class="section-title tr-title">Türkiye Basını</h2>
         <div class="news-grid" id="tr-news-container">
-            </div>
+            <!-- Türkiye Haberleri Dinamik Olarak Buraya Gelecek -->
+        </div>
     </section>
 
+    <!-- ULUSLARARASI BÖLÜM -->
     <section class="grid-section">
         <h2 class="section-title intl-title">Uluslararası Basın (Günün Öne Çıkan 3 Haberi)</h2>
         <div class="news-grid" id="intl-news-container">
-            </div>
+            <!-- NYT, WSJ, Axios ve The Guardian Buraya Gelecek -->
+        </div>
     </section>
 </div>
 
@@ -201,14 +204,19 @@
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR', options);
 
-    // Türkiye Haber Kaynakları (Orijinal Yapı)
+    // Türkiye Haber Kaynakları (Eski listeye talep ettiğiniz yeni gazeteler eklenmiştir)
     const trSources = [
         { name: "Hürriyet", url: "https://www.hurriyet.com.tr/rss/gundem" },
         { name: "Cumhuriyet", url: "https://www.cumhuriyet.com.tr/rss/son_dakika.xml" },
-        { name: "TRT Haber", url: "https://www.trthaber.com/gundem_articles.rss" }
+        { name: "Sabah", url: "https://itv.sabah.com.tr/rss/gundem.xml" },
+        { name: "TRT Haber", url: "https://www.trthaber.com/gundem_articles.rss" },
+        { name: "Yeni Şafak", url: "https://www.yenisafak.com/rss" },
+        { name: "Sözcü", url: "https://www.sozcu.com.tr/rss/gundem.xml" },
+        { name: "Nefes Gazetesi", url: "https://www.nefesgazetesi.com/rss" },
+        { name: "Karar", url: "https://www.karar.com/rss" }
     ];
 
-    // Yeni İstenen Uluslararası Haber Kaynakları (NYT, WSJ, Axios, The Guardian)
+    // Uluslararası Haber Kaynakları
     const intlSources = [
         { name: "The New York Times", url: "https://rss.nyt.com/services/xml/rss/nyt/World.xml" },
         { name: "Wall Street Journal", url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml" },
@@ -231,13 +239,13 @@
         card.className = 'source-card';
         
         const title = document.createElement('h3');
-        title.innerHTML = `${sourceName} <span class="badge">${items.length} Haber</span>`;
+        title.innerHTML = `${sourceName} <span class="badge">${items.length > 3 ? 3 : items.length} Haber</span>`;
         card.appendChild(title);
         
         const list = document.createElement('ul');
         list.className = 'news-list';
         
-        // Sadece ilk 3 haberi alacak şekilde sınırlandırma (Günün 3 haberi)
+        // Sadece ilk 3 haberi alacak şekilde sınırlandırma
         const limitItems = items.slice(0, 3);
         
         if(limitItems.length === 0) {
@@ -248,7 +256,6 @@
             const li = document.createElement('li');
             li.className = 'news-item';
             
-            // Tarih formatlama
             let pubDateStr = "";
             if (item.pubDate) {
                 const d = new Date(item.pubDate);
@@ -271,7 +278,7 @@
         const container = document.getElementById(containerId);
         const card = document.createElement('div');
         card.className = 'source-card';
-        card.innerHTML = `<h3>${sourceName}</h3><p class="error">Haberler yüklenirken bir hata oluştu (CORS veya Kaynak hatası).</p>`;
+        card.innerHTML = `<h3>${sourceName}</h3><p class="error">Haberler yüklenirken bir hata oluştu veya kaynak geçici olarak servis dışı.</p>`;
         container.appendChild(card);
     }
 
@@ -287,7 +294,7 @@
             }
         }
 
-        // Uluslararası Haberleri Yükle (NYT, WSJ, Axios, Guardian)
+        // Uluslararası Haberleri Yükle
         for (const source of intlSources) {
             try {
                 const data = await fetchRSS(source.url);
