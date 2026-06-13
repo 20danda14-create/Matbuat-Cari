@@ -223,7 +223,7 @@
         { name: "Sözcü", url: "https://www.sozcu.com.tr/feeds-rss-category-gundem" },
         { name: "Yeni Şafak", url: "https://www.yenisafak.com/rss?xml=gundem" },
         { name: "BirGün", url: "https://www.birgun.net/xml/rss.xml" },
-        { name: "Gazete Duvar", url: "https://www.gazeteduvar.com.tr/rss" }
+        { name: "T24", url: "https://t24.com.tr/rss/haberler" }
     ];
 
     // 2. Uluslararası Genel Kaynaklar
@@ -267,7 +267,7 @@
         const list = document.createElement('ul');
         list.className = 'news-list';
         
-        const limitItems = items.slice(0, 3);
+        const limitItems = items.slice(0, 5);
         if(limitItems.length === 0) {
             list.innerHTML = `<li class="loading">Akışta yeni haber bulunamadı.</li>`;
         }
